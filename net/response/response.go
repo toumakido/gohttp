@@ -30,7 +30,7 @@ func NewResponse(header map[string]string, body string) *Response {
 }
 
 func NewErrorResponse(err error) *Response {
-	fmt.Println("error response: ", err.Error())
+	fmt.Printf("error response: %s\n", err.Error())
 
 	return &Response{
 		Version: httpVersion,

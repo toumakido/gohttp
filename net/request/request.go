@@ -10,6 +10,7 @@ type Request struct {
 	Endpoint string
 	Version  string
 	Header   map[string]string
+	Body     string
 }
 
 func NewRequest(req []byte) (*Request, error) {
@@ -21,10 +22,18 @@ func NewRequest(req []byte) (*Request, error) {
 	}
 
 	header := make(map[string]string, 0)
+	var body string
+	var bodyStartFromNext bool
 	for _, line := range reqLines[1:] {
-		splitted := strings.Split(strings.Trim(line, " "), ":")
-		if len(splitted) >= 2 {
-			header[splitted[0]] = strings.Join(splitted[1:], "")
+		if !bodyStartFromNext {
+			splitted := strings.Split(strings.Trim(line, " "), ":")
+			if len(splitted) >= 2 {
+				header[splitted[0]] = strings.Join(splitted[1:], "")
+			} else {
+				bodyStartFromNext = true
+			}
+		} else {
+			body += line
 		}
 	}
 
@@ -33,25 +42,26 @@ func NewRequest(req []byte) (*Request, error) {
 		Endpoint: endopoint,
 		Version:  ver,
 		Header:   header,
+		Body:     body,
 	}, nil
 }
 
 type httpMethod string
 
 const (
-	httpHead httpMethod = "HEAD"
-	httpGet  httpMethod = "GET"
-	httpPost httpMethod = "POST"
+	HTTPHead httpMethod = "HEAD"
+	HTTPGet  httpMethod = "GET"
+	HTTPPost httpMethod = "POST"
 )
 
 func hewHTTPMethod(s string) (httpMethod, error) {
 	switch s {
 	case "HEAD":
-		return httpHead, nil
+		return HTTPHead, nil
 	case "GET":
-		return httpGet, nil
+		return HTTPGet, nil
 	case "POST":
-		return httpPost, nil
+		return HTTPPost, nil
 	}
 	return "", fmt.Errorf("unknown method %s", s)
 }

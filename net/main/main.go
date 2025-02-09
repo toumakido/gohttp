@@ -45,10 +45,20 @@ func handleConnection(conn net.Conn) {
 }
 
 func route(req *request.Request) *response.Response {
-	switch req.Endpoint {
-	case "/hello":
-		return handler.Hello(req)
+	switch req.Method {
+	case request.HTTPGet, request.HTTPHead:
+		switch req.Endpoint {
+		case "/hello", "/hello/":
+			return handler.GetHello()
+		default:
+			return handler.GetIndex(req)
+		}
+	case request.HTTPPost:
+		switch req.Endpoint {
+		default:
+			return handler.PostIndex(req)
+		}
 	default:
-		return handler.Index(req)
+		return handler.GetIndex(req)
 	}
 }
