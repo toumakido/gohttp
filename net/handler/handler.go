@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bytes"
 	"encoding/json"
 
 	"github.com/toumakido/gohttp/net/request"
@@ -48,7 +49,7 @@ type postIndexResponse struct {
 
 func PostIndex(req *request.Request) *response.Response {
 	var msg postIndexRequestBody
-	err := json.Unmarshal([]byte(req.Body), &msg)
+	err := json.Unmarshal(bytes.Trim([]byte(req.Body), "\x00"), &msg)
 	if err != nil {
 		return response.NewErrorResponse(err)
 	}
