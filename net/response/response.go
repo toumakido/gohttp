@@ -9,16 +9,18 @@ import (
 
 type Response struct {
 	Version string
-	Status  Status
+	Status  status
 	Header  map[string]string
 	Body    string
 }
 
-type Status string
+const httpVersion string = "HTTP/1.1"
+
+type status string
 
 const (
-	StatusOK       Status = "200 OK"
-	Status500Error Status = "500 Internal Server Error"
+	statusOK       status = "200 OK"
+	status500Error status = "500 Internal Server Error"
 )
 
 func NewResponse(req *request.Request) *Response {
@@ -27,44 +29,36 @@ func NewResponse(req *request.Request) *Response {
 	if err != nil {
 		return NewErrorResponse(err)
 	}
+
 	header := make(map[string]string)
 	header["Content-Type"] = "application/json"
+
 	return &Response{
-		Version: "HTTP/1.1",
-		Status:  StatusOK,
+		Version: httpVersion,
+		Status:  statusOK,
 		Header:  header,
 		Body:    string(body),
 	}
 }
 
 func NewErrorResponse(err error) *Response {
+	fmt.Println("error response: ", err.Error())
+
 	return &Response{
-		Version: "HTTP/1.1",
-		Status:  Status500Error,
+		Version: httpVersion,
+		Status:  status500Error,
 		Body:    err.Error(),
 	}
 }
 
-/*
-HTTP/1.1 200 OK
-Content-Encoding: gzip
-Content-Type: text/html; charset=utf-8
-Date: Sat, 27 May 2023 02:54:02 GMT
-Server: GitHub.com
-<!DOCTYPE html>
-<html lang="en" data-color-mode="auto" data-light-theme="light" data-dark-theme="dark" dataa11y-animated-images="system">
-<head>
-<meta charset="utf-8">
-<script type="application/javascript" src="https://github.githubassets.com/assets/code-menu.
-js"></script>
-: （略）
-*/
-
 func (res *Response) String() string {
 	ret := fmt.Sprintf("%s %s\n", res.Version, string(res.Status)) // 1行目
+
 	for key, val := range res.Header {
-		ret += fmt.Sprintf("%s: %s\n", key, val) // header
+		ret += fmt.Sprintf("%s: %s\n", key, val) // headerを追加
 	}
+
 	ret += fmt.Sprintf("\n%s", res.Body) // 1行あけて、body
+
 	return ret
 }

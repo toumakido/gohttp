@@ -26,17 +26,19 @@ func handleConnection(conn net.Conn) {
 	defer conn.Close()
 
 	b := make([]byte, 1024)
-	_, err := conn.Read(b)
+	n, err := conn.Read(b)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("failed to read connection :%s", err.Error())
 	}
 
-	var res *response.Response
-	req, err := request.NewRequest(b)
-	if err != nil {
-		res = response.NewErrorResponse(err)
-	} else {
-		res = response.NewResponse(req)
+	if n > 0 {
+		var res *response.Response
+		req, err := request.NewRequest(b)
+		if err != nil {
+			res = response.NewErrorResponse(err)
+		} else {
+			res = response.NewResponse(req)
+		}
+		conn.Write([]byte(res.String()))
 	}
-	conn.Write([]byte(res.String()))
 }

@@ -6,7 +6,7 @@ import (
 )
 
 type Request struct {
-	Method  HttpMethod
+	Method  httpMethod
 	Version string
 	Header  map[string]string
 }
@@ -16,7 +16,7 @@ func NewRequest(req []byte) (*Request, error) {
 
 	method, ver, err := parseFirstLine(reqLines[0])
 	if err != nil {
-		return nil, fmt.Errorf("failed to parseFirstLine: %w", err)
+		return nil, err
 	}
 
 	header := make(map[string]string, 0)
@@ -34,30 +34,30 @@ func NewRequest(req []byte) (*Request, error) {
 	}, nil
 }
 
-type HttpMethod string
+type httpMethod string
 
 const (
-	httpHead HttpMethod = "HEAD"
-	httpGet  HttpMethod = "GET"
-	httpPost HttpMethod = "POST"
+	httpHead httpMethod = "HEAD"
+	httpGet  httpMethod = "GET"
+	httpPost httpMethod = "POST"
 )
 
-func newHTTPMethod(s string) (HttpMethod, error) {
+func hewHTTPMethod(s string) (httpMethod, error) {
 	switch s {
 	case "HEAD":
 		return httpHead, nil
 	case "GET":
 		return httpGet, nil
 	case "POST":
-		return httpGet, nil
+		return httpPost, nil
 	}
 	return "", fmt.Errorf("unknown method %s", s)
 }
 
-func parseFirstLine(line string) (HttpMethod, string, error) {
+func parseFirstLine(line string) (httpMethod, string, error) {
 	splitted := strings.Split(line, " ")
 	if len(splitted) == 3 {
-		method, err := newHTTPMethod(splitted[0])
+		method, err := hewHTTPMethod(splitted[0])
 		if err != nil {
 			return "", "", err
 		}
