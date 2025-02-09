@@ -1,10 +1,7 @@
 package response
 
 import (
-	"encoding/json"
 	"fmt"
-
-	"github.com/toumakido/gohttp/net/request"
 )
 
 type Response struct {
@@ -23,21 +20,12 @@ const (
 	status500Error status = "500 Internal Server Error"
 )
 
-func NewResponse(req *request.Request) *Response {
-	// リクエスト内容をjsonで返す。（200）
-	body, err := json.Marshal(req.Header)
-	if err != nil {
-		return NewErrorResponse(err)
-	}
-
-	header := make(map[string]string)
-	header["Content-Type"] = "application/json"
-
+func NewResponse(header map[string]string, body string) *Response {
 	return &Response{
 		Version: httpVersion,
 		Status:  statusOK,
 		Header:  header,
-		Body:    string(body),
+		Body:    body,
 	}
 }
 

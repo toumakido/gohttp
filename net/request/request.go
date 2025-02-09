@@ -6,15 +6,16 @@ import (
 )
 
 type Request struct {
-	Method  httpMethod
-	Version string
-	Header  map[string]string
+	Method   httpMethod
+	Endpoint string
+	Version  string
+	Header   map[string]string
 }
 
 func NewRequest(req []byte) (*Request, error) {
 	reqLines := strings.Split(string(req), "\n")
 
-	method, ver, err := parseFirstLine(reqLines[0])
+	method, endopoint, ver, err := parseFirstLine(reqLines[0])
 	if err != nil {
 		return nil, err
 	}
@@ -22,15 +23,16 @@ func NewRequest(req []byte) (*Request, error) {
 	header := make(map[string]string, 0)
 	for _, line := range reqLines[1:] {
 		splitted := strings.Split(strings.Trim(line, " "), ":")
-		if len(splitted) == 2 {
-			header[splitted[0]] = splitted[1]
+		if len(splitted) >= 2 {
+			header[splitted[0]] = strings.Join(splitted[1:], "")
 		}
 	}
 
 	return &Request{
-		Method:  method,
-		Version: ver,
-		Header:  header,
+		Method:   method,
+		Endpoint: endopoint,
+		Version:  ver,
+		Header:   header,
 	}, nil
 }
 
@@ -54,14 +56,14 @@ func hewHTTPMethod(s string) (httpMethod, error) {
 	return "", fmt.Errorf("unknown method %s", s)
 }
 
-func parseFirstLine(line string) (httpMethod, string, error) {
+func parseFirstLine(line string) (httpMethod, string, string, error) {
 	splitted := strings.Split(line, " ")
 	if len(splitted) == 3 {
 		method, err := hewHTTPMethod(splitted[0])
 		if err != nil {
-			return "", "", err
+			return "", "", "", err
 		}
-		return method, splitted[2], nil
+		return method, splitted[1], splitted[2], nil
 	}
-	return "", "", fmt.Errorf("failed to parse request's first line :%s", line)
+	return "", "", "", fmt.Errorf("failed to parse request's first line :%s", line)
 }
