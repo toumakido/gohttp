@@ -4,6 +4,7 @@ import (
 	"log"
 	"net"
 
+	"github.com/toumakido/gohttp/net/handler"
 	"github.com/toumakido/gohttp/net/request"
 	"github.com/toumakido/gohttp/net/response"
 )
@@ -37,8 +38,17 @@ func handleConnection(conn net.Conn) {
 		if err != nil {
 			res = response.NewErrorResponse(err)
 		} else {
-			res = response.NewResponse(req)
+			res = route(req)
 		}
 		conn.Write([]byte(res.String()))
+	}
+}
+
+func route(req *request.Request) *response.Response {
+	switch req.Endpoint {
+	case "/hello":
+		return handler.Hello(req)
+	default:
+		return handler.Index(req)
 	}
 }
