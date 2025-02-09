@@ -4,7 +4,8 @@ import (
 	"log"
 	"net"
 
-	"github.com/toumakido/gohttp/net/req"
+	"github.com/toumakido/gohttp/net/request"
+	"github.com/toumakido/gohttp/net/response"
 )
 
 func main() {
@@ -29,12 +30,13 @@ func handleConnection(conn net.Conn) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = req.NewRequest(b)
-	if err != nil {
-		handleError(err)
-	}
-}
 
-func handleError(err error) error {
-	return err
+	var res *response.Response
+	req, err := request.NewRequest(b)
+	if err != nil {
+		res = response.NewErrorResponse(err)
+	} else {
+		res = response.NewResponse(req)
+	}
+	conn.Write([]byte(res.String()))
 }

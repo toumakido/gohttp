@@ -1,4 +1,4 @@
-package req
+package request
 
 import (
 	"fmt"
@@ -37,12 +37,15 @@ func NewRequest(req []byte) (*Request, error) {
 type HttpMethod string
 
 const (
+	httpHead HttpMethod = "HEAD"
 	httpGet  HttpMethod = "GET"
 	httpPost HttpMethod = "POST"
 )
 
 func newHTTPMethod(s string) (HttpMethod, error) {
 	switch s {
+	case "HEAD":
+		return httpHead, nil
 	case "GET":
 		return httpGet, nil
 	case "POST":
@@ -52,13 +55,13 @@ func newHTTPMethod(s string) (HttpMethod, error) {
 }
 
 func parseFirstLine(line string) (HttpMethod, string, error) {
-	splitted := strings.Split(strings.Trim(line, " "), "/")
-	if len(splitted) == 2 {
+	splitted := strings.Split(line, " ")
+	if len(splitted) == 3 {
 		method, err := newHTTPMethod(splitted[0])
 		if err != nil {
 			return "", "", err
 		}
-		return method, splitted[1], nil
+		return method, splitted[2], nil
 	}
 	return "", "", fmt.Errorf("failed to parse request's first line :%s", line)
 }
