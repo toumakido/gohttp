@@ -1,4 +1,4 @@
-package obj
+package res
 
 type Response struct {
 	Version string
